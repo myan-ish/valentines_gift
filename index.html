@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Funny Valentine</title>
+  </head>
+  <body>
+    <div class="grid place-items-center h-screen" id="confetti-container">
+      <h1 class="text-4xl">Will you be my Valentines?</h1>
+      <div class="flex gap-x-12">
+        <button
+          name="yes"
+          class="text-xl border w-40 h-24 flex grid place-items-center rounded cursor-pointer"
+          onclick="launchConfetti()"
+        >
+          Yes
+        </button>
+        <button
+          name="no"
+          onclick="reduce_size(this)"
+          class="text-xl border w-40 h-24 flex grid place-items-center rounded cursor-pointer"
+          style="scale: 1"
+        >
+          No
+        </button>
+      </div>
+      <div class="w-1/3">
+        <img src="generated_chibi.png" />
+      </div>
+    </div>
+
+    <script>
+      function reduce_size(element) {
+        let scale =
+          window.getComputedStyle(element).getPropertyValue("scale") || 1;
+        element.setAttribute("style", `scale: ${scale - 0.15}`);
+        if (scale <= 0.1) {
+          element.remove();
+        }
+      }
+
+      function congrats() {
+        launchConfetti();
+      }
+
+      function createConfettiPiece(x, y) {
+        const piece = document.createElement("div");
+        piece.classList.add("confetti-piece");
+        piece.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        piece.style.left = `${x}px`;
+        piece.style.top = `${y}px`;
+        document.getElementById("confetti-container").appendChild(piece);
+        return piece;
+      }
+
+      function animateConfettiPiece(
+        piece,
+        minDuration = 3000,
+        maxDuration = 5000
+      ) {
+        const initialX = piece.style.left;
+        const initialY = parseInt(piece.style.top, 10);
+        const finalY = document.body.clientHeight;
+
+        // Randomize duration within the given range
+        const duration =
+          minDuration + Math.random() * (maxDuration - minDuration);
+
+        // Introduce randomness to the start delay
+        const startDelay = Math.random() * 1000; // Delay up to 1000 milliseconds (1 second)
+
+        const frameRate = 30;
+        const totalFrames = duration / frameRate;
+        let frame = 0;
+
+        function update() {
+          const progress = frame / totalFrames;
+          const newY = initialY + progress * (finalY - initialY);
+          piece.style.top = `${newY}px`;
+          piece.style.opacity = 1 - progress;
+
+          frame++;
+          if (frame < totalFrames) {
+            requestAnimationFrame(update);
+          } else {
+            piece.remove();
+          }
+        }
+
+        // Apply the start delay
+        setTimeout(() => {
+          requestAnimationFrame(update);
+        }, startDelay);
+      }
+
+      function launchConfetti() {
+        const numberOfPieces = 500;
+        const containerWidth = document.body.clientWidth;
+        const containerHeight = document.body.clientHeight;
+
+        for (let i = 0; i < numberOfPieces; i++) {
+          const xPosition = Math.random() * containerWidth;
+          const yPosition = -10; // Start above the container
+          const confettiPiece = createConfettiPiece(xPosition, yPosition);
+          animateConfettiPiece(confettiPiece, 3000 + Math.random() * 2000); // Randomize duration for variation
+        }
+      }
+    </script>
+
+    <style>
+      #confetti-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .confetti-piece {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        opacity: 0.7;
+      }
+    </style>
+  </body>
+</html>
